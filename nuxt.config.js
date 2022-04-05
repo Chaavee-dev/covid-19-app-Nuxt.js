@@ -20,9 +20,9 @@ export default {
     modules: ['@nuxtjs/axios']
   },
 
-  server: {
-    host: '192.168.1.73'
-  },
+//   server: {
+//     host: '192.168.1.73'
+//   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [],
@@ -75,5 +75,8 @@ export default {
   // Build Configuration: https://go.nuxtjs.dev/config-build
   build: {},
 
-  target: 'static'
+  target: 'static',
+  router: {
+      base: 'covid-19-app-Nuxt.js'
+  }
 }
