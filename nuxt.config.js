@@ -17,7 +17,8 @@ export default {
         meta: [
             { charset: 'utf-8' },
             { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-            { hid: 'description', name: 'description', content: '' },
+            { name: 'description', content: 'สถานการณ์ผู้ติดเชื้อ COVID-19 อัพเดทรายวัน' },
+            { name: 'description', content: 'โควิดประเทศไทย' },
             { name: 'format-detection', content: 'telephone=no' },
         ],
         link: [

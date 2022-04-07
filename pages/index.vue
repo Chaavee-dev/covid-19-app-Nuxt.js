@@ -17,13 +17,15 @@
         width="100px"
       />
       <blockquote class="blockquote">
-        &#8220;สถานการณ์ผู้ติดเชื้อ COVID-19 อัพเดทรายวัน.&#8221;
+        &#8220;สถานการณ์ผู้ติดเชื้อ COVID-19 อัพเดทรายวัน&#8221;
         <footer>
           <small>
-            <em>&mdash;Covid-19 | TH</em>
+            <em>&mdash; ข้อมูลอัพเดทเวลาประมาณ 08:00 ของทุกวัน &mdash;</em>
           </small>
         </footer>
-      </blockquote>
+      </blockquote><p class="red--text">
+        {{ clock }}
+    </p>
     </v-col>
     <v-col class="text-center" cols="12" lg="12" sm="6">
       <p v-if="data.txn_date">
@@ -37,9 +39,7 @@
           })
         }}
       </p>
-      <p v-else>
-          กำลังโหลด...
-      </p>
+      <p v-else>กำลังโหลด...</p>
     </v-col>
     <v-col align="center" cols="12" lg="6" sm="6">
       <v-select
@@ -74,9 +74,14 @@
             dense
           ></v-text-field>
         </template>
-        <v-date-picker v-model="date" min="2020-01-12" :max="(new Date()).toISOString().substr(0, 10)" scrollable>
+        <v-date-picker
+          v-model="date"
+          min="2020-01-12"
+          :max="new Date().toISOString().substr(0, 10)"
+          scrollable
+        >
           <v-spacer></v-spacer>
-          <v-btn text color="red" @click="modal=false"> ยกเลิก </v-btn>
+          <v-btn text color="red" @click="modal = false"> ยกเลิก </v-btn>
           <v-btn
             text
             color="success"
@@ -111,9 +116,7 @@
             <v-card-text v-if="data.new_case >= 0" class="text-h4"
               >{{ Number(data.new_case).toLocaleString() }} คน</v-card-text
             >
-            <v-card-text v-else class="text-h5"
-              >กำลังโหลด...</v-card-text
-            >
+            <v-card-text v-else class="text-h5">กำลังโหลด...</v-card-text>
           </div>
         </div>
       </v-card>
@@ -137,9 +140,7 @@
             <v-card-text v-if="data.new_death >= 0" class="text-h4"
               >{{ Number(data.new_death).toLocaleString() }} คน</v-card-text
             >
-            <v-card-text v-else class="text-h5"
-              >กำลังโหลด...</v-card-text
-            >
+            <v-card-text v-else class="text-h5">กำลังโหลด...</v-card-text>
           </div>
         </div>
       </v-card>
@@ -166,9 +167,7 @@
             <v-card-text v-if="data.new_recovered >= 0" class="text-h4"
               >{{ Number(data.new_recovered).toLocaleString() }} คน</v-card-text
             >
-            <v-card-text v-else class="text-h5"
-              >กำลังโหลด...</v-card-text
-            >
+            <v-card-text v-else class="text-h5">กำลังโหลด...</v-card-text>
           </div>
         </div>
       </v-card>
@@ -194,9 +193,7 @@
               }}
               คน</v-card-text
             >
-            <v-card-text v-else class="text-h5"
-              >กำลังโหลด...</v-card-text
-            >
+            <v-card-text v-else class="text-h5">กำลังโหลด...</v-card-text>
           </div>
         </div>
       </v-card>
@@ -204,12 +201,13 @@
     <v-col class="text-center" cols="12" lg="12" sm="6">
       <a href="https://covid19.ddc.moph.go.th/" target="_blank">
         <img src="/images/sat-moph.jpg" alt="" />
-      </a>
-    </v-col>
+      </a> </v-col
+    >
   </v-row>
 </template>
 
 <script>
+var moment = require('moment') // require
 
 export default {
   name: 'HomePage',
@@ -222,12 +220,25 @@ export default {
     date: new Date(Date.now() - new Date().getTimezoneOffset() * 60000)
       .toISOString()
       .substr(0, 10),
+    clock: 'กำลังโหลด...',
+    ivl: 0,
   }),
   mounted() {
+    if (new Date().getHours() <= 8) {
+      let time = new Date(this.date)
+      time.setDate(time.getDate() - 1)
+      this.date = time.toISOString().substr(0, 10)
+    }
     this.fetchDATA()
     this.fetchProvinces()
+    this.clockNow()
   },
   methods: {
+    clockNow: function () {
+          setInterval(()=>{
+                this.clock = moment(new Date()).format('hh:mm:ss | DD/MM/YYYY')
+          }, 1000)
+      },
     onChange() {
       this.data = false
       // this.$router.push({path: '?province='+this.selected })
@@ -235,16 +246,16 @@ export default {
       if (this.selected == 'ทั้งหมด') {
         this.title = 'ประเทศไทย'
         document.title = 'COVID-19 | ประเทศไทย'
-        if(this.date == (new Date()).toISOString().substr(0, 10)){
-            this.fetchDATA()
-        }else{
-            this.fetchDATA_Date()
+        if (this.date == new Date().toISOString().substr(0, 10)) {
+          this.fetchDATA()
+        } else {
+          this.fetchDATA_Date()
         }
       } else {
-          if(this.date == (new Date()).toISOString().substr(0, 10)){
-            this.fetchDATA_Province()
-        }else{
-            this.fetchDATA_Date()
+        if (this.date == new Date().toISOString().substr(0, 10)) {
+          this.fetchDATA_Province()
+        } else {
+          this.fetchDATA_Date()
         }
       }
     },
@@ -262,7 +273,10 @@ export default {
       let data
       let dataFilter
       const d = new Date(this.date)
-      if ((d.getMonth() >= 3 && d.getFullYear() == 2021) || (d.getFullYear() >= 2022)) {
+      if (
+        (d.getMonth() >= 3 && d.getFullYear() == 2021) ||
+        d.getFullYear() >= 2022
+      ) {
         if (this.selected == 'ทั้งหมด') {
           url = 'https://covid19.ddc.moph.go.th/api/Cases/timeline-cases-all'
           data = await this.$axios.$get(url)
@@ -274,9 +288,14 @@ export default {
           dataFilter = await data.filter(
             (e) => e.province == this.selected && e.txn_date == this.date
           )
+          this.title = 'จังหวัด' + this.selected
+          document.title = 'COVID-19 | จังหวัด' + this.selected
         }
         this.data = dataFilter[0]
-      } else if ((d.getMonth() <= 2 && d.getFullYear() == 2021) || (d.getFullYear() == 2020)) {
+      } else if (
+        (d.getMonth() <= 2 && d.getFullYear() == 2021) ||
+        d.getFullYear() == 2020
+      ) {
         if (this.selected == 'ทั้งหมด') {
           url = 'https://covid19.ddc.moph.go.th/api/Cases/round-1to2-all'
           data = await this.$axios.$get(url)
@@ -288,6 +307,8 @@ export default {
           dataFilter = await data.filter(
             (e) => e.province == this.selected && e.txn_date == this.date
           )
+          this.title = 'จังหวัด' + this.selected
+          document.title = 'COVID-19 | จังหวัด' + this.selected
         }
         this.data = dataFilter[0]
       } else {
